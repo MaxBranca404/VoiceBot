@@ -6,7 +6,7 @@ class VoiceChatBot {
         this.isListening = false;
         this.isSpeaking = false;
         this.apiKey = '';
-        this.currentModel = 'deepseek/deepseek-r1:free';
+        this.currentModel = 'meta-llama/llama-3.3-70b-instruct:free';
         this.transcriptData = [];
 
         this.currentChatId = null;
