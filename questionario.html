@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Questionario Prevenzione - VoiceBot AI</title>
+    <link rel="stylesheet" href="css/chat.css">
+</head>
+<body>
+    <div class="container">
+      <div class="header">
+          <div class="title-section">
+              <h1>VoiceBot - Prevenzione</h1>
+              <p>Questionario di prevenzione sanitaria con assistente vocale</p>
+          </div>
+      </div>
+
+      <div class="sidebar-menu">
+          <button class="menu-btn settings-btn" onclick="window.location.href='settings.html'">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="3"></circle>
+                  <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1 1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+              </svg>
+          </button>
+          <button class="menu-btn transcript-btn" id="transcriptBtn" onclick="toggleTranscript()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14,2 14,8 20,8"></polyline>
+                  <line x1="16" y1="13" x2="8" y2="13"></line>
+                  <line x1="16" y1="17" x2="8" y2="17"></line>
+                  <polyline points="10,9 9,9 8,9"></polyline>
+              </svg>
+          </button>
+          <button class="menu-btn chat-btn" id="exportBtn" onclick="exportResults()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7,10 12,15 17,10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+          </button>
+      </div>
+
+        <div class="voice-container">
+            <div class="voice-animation">
+                <div class="voice-circle" id="voiceCircle"></div>
+                <div class="voice-inner">
+                    <div class="voice-bars" id="voiceBars">
+                        <div class="voice-bar"></div>
+                        <div class="voice-bar"></div>
+                        <div class="voice-bar"></div>
+                        <div class="voice-bar"></div>
+                        <div class="voice-bar"></div>
+                        <div class="voice-bar"></div>
+                        <div class="voice-bar"></div>
+                        <div class="voice-bar"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="voice-controls">
+                <button class="voice-btn btn-start" id="startBtn">🎤 Registra</button>
+                <button class="voice-btn btn-stop" id="stopBtn" style="display:none;">⏹️ Interrompi</button>
+                <button class="voice-btn btn-next" id="nextBtn" style="display:none;">⏭️ Avanti</button>
+            </div>
+
+            <div class="status" id="status">Clicca 'Inizia Questionario' per iniziare</div>
+            <div class="progress" id="progress" style="display:none;">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <span id="progressText">0/0</span>
+            </div>
+        </div>
+
+        <div class="transcript-container" id="transcriptContainer">
+            <div class="transcript-header">
+                <h3>Conversazione Questionario</h3>
+                <button class="clear-transcript-btn" onclick="clearTranscript()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="3,6 5,6 21,6"></polyline>
+                        <path d="M19,6v14a2,2 0 0,1-2,2H7a2,2 0 0,1-2-2V6m3,0V4a2,2 0 0,1 2-2h4a2,2 0 0,1 2,2v2"></path>
+                    </svg>
+                    Pulisci
+                </button>
+            </div>
+            <div class="transcript-content" id="transcriptContent">
+                <div class="chat-message bot-message">
+                    <div class="message-content">Benvenuto nel questionario di prevenzione sanitaria. Clicca su "Inizia Questionario" quando sei pronto.</div>
+                </div>
+            </div>
+            <div class="transcript-input-container">
+                <div class="text-input-wrapper">
+                    <input type="text" id="textInput" placeholder="Scrivi la tua risposta..." class="text-input">
+                    <button id="sendTextBtn" class="send-text-btn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="22" y1="2" x2="11" y2="13"></line>
+                            <polygon points="22,2 15,22 11,13 2,9"></polygon>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <button id="startQuestionnaireBtn" class="voice-btn">🚀 Inizia Questionario</button>
+
+        <footer style="position: fixed; bottom: 0; left: 0; right: 0; background-color: #1a1a1a; color: #666; text-align: center; padding: 8px 0; font-size: 12px; border-top: 1px solid #333; z-index: 9999;">
+            VoiceBot Prevenzione - 2025 @MaxBranca404
+        </footer>
+    </div>
+
+<script>
+// Importa i dati dal file prevention.js
+const introduzione = "Benvenuto! Questo è un test di prevenzione sanitaria completo, progettato per aiutarti a valutare il tuo stato di salute e identificare possibili fattori di rischio. Compilare il test richiederà circa 20 minuti, ma potrebbe davvero fare la differenza nella tua vita. Le tue risposte saranno utilizzate per fornirti consigli personalizzati secondo le linee guida sanitarie ufficiali. Iniziamo quando sei pronto!";
+
+const domandeBase = [
+  { key: "eta", testo: "Quanti anni hai?" },
+  { key: "sesso", testo: "Qual è il tuo sesso biologico? (maschio/femmina)" },
+  { key: "origine_etnica", testo: "Qual è la tua origine etnica? (es: caucasica, africana, asiatica, ispanica, araba, indiana, mista, altra)" },
+  { key: "altezza", testo: "Quanto sei alto/a in cm?" },
+  { key: "peso", testo: "Quanto pesi in kg?" },
+  { key: "vita", testo: "La misura del tuo giro vita è maggiore di 88 cm (se sei donna) o maggiore di 102 cm (se sei uomo)?" },
+  { key: "circonferenza_vita", testo: "A quanto corrisponde la tua circonferenza vita in centimetri?", tipo: "numero" },
+  { key: "glicemia", testo: "La tua glicemia è inferiore a 100 mg/dL?" },
+  { key: "glicemia_valore", testo: "Sai a quanto corrisponde il valore della tua glicemia a digiuno?" },
+  { key: "hba1c", testo: "Conosci il valore della tua emoglobina glicata (HbA1c)? (in %)" },
+  { key: "colesterolo_totale", testo: "Qual è il valore del tuo colesterolo totale (mg/dL)?" },
+  { key: "colesterolo_ldl", testo: "Il tuo colesterolo LDL supera il valore di 70 mg/dL?" },
+  { key: "colesterolo_hdl_valore", testo: "Qual è il valore del tuo colesterolo HDL (se lo conosci)?" },
+  { key: "pressione", testo: "La tua pressione arteriosa media è inferiore a 130/85 mmHg?" },
+  { key: "pressione_sistolica", testo: "Qual è la tua pressione sistolica (massima) in mmHg?" },
+  { key: "pressione_diastolica", testo: "Qual è la tua pressione diastolica (minima) in mmHg?" },
+  { key: "ast", testo: "Conosci il valore delle tue transaminasi AST (GOT)? (U/L)" },
+  { key: "alt", testo: "Conosci il valore delle tue transaminasi ALT (GPT)? (U/L)" },
+  { key: "ggt", testo: "Qual è il tuo valore di Gamma‑GT (U/L), se noto?", tipo: "numero" },
+  { key: "regione_rischio_cv", testo: "Sai in quale categoria di rischio cardiovascolare ti trovi?", tipo: "scelta", opzioni: ["basso", "moderato", "alto", "molto alto"] },
+  { key: "piastrine", testo: "Conosci il valore delle tue piastrine? (x10^9/L o x1000/mm³)" },
+  { key: "albumina", testo: "Conosci il valore della tua albumina sierica? (g/dL)" },
+  { key: "egfr", testo: "Qual'è il tuo valore di eGFR (ml/min/1.73 m²), se noto?", tipo: "numero" },
+  { key: "diabete", testo: "Ti è stato diagnosticato il diabete di tipo 2?", tipo: "scelta", opzioni: ["sì", "no"] },
+  { key: "eta_diagnosi_diabete", testo: "A che età ti è stato diagnosticato il diabete?", tipo: "numero", condizione: "diabete" },
+  { key: "linfociti", testo: "Conosci il numero dei tuoi linfociti? (per mm³)" },
+  { key: "malattie_croniche", testo: "Hai malattie croniche diagnosticate (es. ipertensione)?" },
+  { key: "farmaci", testo: "Assumi farmaci?" },
+  { key: "farmaci_dettaglio", testo: "Se assumi farmaci, elencali nella casella di testo sottostante.", condizione: "farmaci" },
+  { key: "interventi", testo: "Hai subito interventi chirurgici rilevanti?" },
+  { key: "interventi_dettaglio", testo: "Se hai subito interventi chirurgici rilevanti, elencali nella casella di testo sottostante.", condizione: "interventi" },
+  { key: "familiarita_tumori", testo: "Ci sono stati casi di tumore in famiglia?" },
+  { key: "sede_tumore", testo: "Da quale tipo di tumore è stato affetto il tuo familiare?", condizione: "familiarita_tumori" },
+  { key: "fumatore", testo: "Fumi?" },
+  { key: "n_sigarette", testo: "Quante sigarette fumi al giorno?", condizione: "fumatore" },
+  { key: "alcol", testo: "Consumi bevande alcoliche?" },
+  { key: "unita_alcoliche", testo: "Quante unità alcoliche bevi al giorno? (1 unità = 1 bicchiere di vino / birra / shot)", condizione: "alcol" },
+  { key: "attivita_fisica", testo: "Svolgi attività fisica settimanale?" },
+  { key: "frequenza_attivita_fisica", testo: "Con quale frequenza svogli questa attività", condizione: "attivita_fisica" },
+  { key: "tipo_attivita", testo: "Che tipo di attività fisica svolgi? (aerobica, rafforzamento muscolare, rafforzamento osseo e stretching)", condizione: "attivita_fisica" },
+  { key: "durata_attivita", testo: "Quanto dura ogni allenamento? (in minuti)", condizione: "attivita_fisica" },
+  { key: "predimed_1", testo: "Usi l'olio extravergine di oliva come condimento principale (es. per cucinare, condire insalate)?" },
+  { key: "trigliceridi", testo: "Qual è il valore dei tuoi trigliceridi (mg/dL)?" },
+  { key: "predimed_2", testo: "Ne usi più di 4 cucchiai al giorno?" },
+  { key: "predimed_3", testo: "Mangi almeno 2 porzioni di verdura al giorno? (1 porzione = 200g circa)" },
+  { key: "predimed_4", testo: "Mangi almeno 3 porzioni di frutta al giorno? (1 porzione = 1 frutto medio o 100g circa)" },
+  { key: "predimed_5", testo: "Mangi meno di 1 porzione al giorno di carne rossa o salumi?" },
+  { key: "predimed_6", testo: "Bevi meno di 1 bevanda zuccherata al giorno?" },
+  { key: "predimed_7", testo: "Bevi vino in quantità moderate? (1-7 bicchieri/settimana per le donne, 1-14 per gli uomini)" },
+  { key: "predimed_8", testo: "Mangi almeno 3 porzioni di legumi alla settimana?" },
+  { key: "predimed_9", testo: "Mangi almeno 3 porzioni di pesce o frutti di mare alla settimana?" },
+  { key: "predimed_10", testo: "Consumai dolci industriali meno di 3 volte a settimana?" },
+  { key: "predimed_11", testo: "Preferisci carni bianche rispetto a carni rosse?" },
+  { key: "predimed_12", testo: "Mangi frutta secca almeno 3 volte a settimana?" },
+  { key: "predimed_13", testo: "Usi soffritti con pomodoro, cipolla, aglio e olio d'oliva almeno 2 volte a settimana?" },
+  { key: "predimed_14", testo: "Pensi che la tua alimentazione sia vicina alla dieta mediterranea?" },
+  { key: "stanchezza", testo: "In genere ti senti stanco/a?" },
+  { key: "depressione", testo: "Hai mai avuto episodi di depressione?" },
+  { key: "insonnia", testo: "Hai difficoltà a dormire?" },
+  { key: "tipo_insonnia", testo: "Se hai difficoltà a dormire, descrivi la difficoltà (es. fatica ad addormentarti, risvegli notturni...)" },
+  { key: "stress", testo: "Livello percepito di stress (da 1 = niente stress a 10 = stress molto elevato)" },
+  { key: "preferenze", testo: "C'è qualcosa di specifico sulla tua salute che ti interessa approfondire? (es: alimentazione, cuore, sonno, stress, screening oncologici, attività fisica, benessere mentale)" }
+];
+
+const domandeOver65 = [
+  { key: "stanchezza_over65", testo: "Ti senti stanco/a frequentemente?" },
+  { key: "camminata", testo: "Riesci a camminare un isolato (circa 100 metri)?" },
+  { key: "malattie_croniche_over65", testo: "Hai più di 5 malattie croniche?" },
+  { key: "perdita_peso", testo: "Hai perso più di 5 kg nell'ultimo anno senza volerlo?" },
+  { key: "sedia", testo: "Hai problemi ad alzarti da una sedia?" }
+];
+
+const domandeFemminili = [
+  { key: "eta_menarca", testo: "A che età hai avuto il primo ciclo mestruale?" },
+  { key: "contraccettivi", testo: "Hai mai usato contraccettivi ormonali?" },
+  { key: "gravidanza", testo: "Hai avuto una o più gravidanze?" },
+  { key: "eta_menopausa", testo: "A che età sei andata in menopausa? (facoltativo)" },
+  { key: "diabete_gestazionale", testo: "Hai mai sofferto di diabete gestazionale?" },
+  { key: "familiarita_seno", testo: "Tua madre o tua nonna hanno avuto un tumore al seno?" },
+  { key: "screening_seno", testo: "Hai mai svolto una mammografia o un'ecografia mammaria? (se hai più di 25 anni)" },
+  { key: "papsmear", testo: "Svolgi regolarmente il Pap test? (se hai più di 25 anni)" }
+];
+
+// Stato del questionario
+let currentQuestionIndex = 0;
+let domandeTotali = [];
+let risposte = {};
+let isListening = false;
+let isQuestionnaireStarted = false;
+let recognition;
+let synth = window.speechSynthesis;
+
+// Elementi DOM
+const startBtn = document.getElementById('startBtn');
+const stopBtn = document.getElementById('stopBtn');
+const nextBtn = document.getElementById('nextBtn');
+const status = document.getElementById('status');
+const transcriptContent = document.getElementById('transcriptContent');
+const textInput = document.getElementById('textInput');
+const sendTextBtn = document.getElementById('sendTextBtn');
+const startQuestionnaireBtn = document.getElementById('startQuestionnaireBtn');
+const progress = document.getElementById('progress');
+const progressFill = document.getElementById('progressFill');
+const progressText = document.getElementById('progressText');
+const voiceCircle = document.getElementById('voiceCircle');
+const transcriptContainer = document.getElementById('transcriptContainer');
+
+// Inizializzazione
+function init() {
+    setupSpeechRecognition();
+    setupEventListeners();
+    toggleTranscript(); // Mostra la trascrizione di default
+}
+
+// Configura il riconoscimento vocale
+function setupSpeechRecognition() {
+    if ('webkitSpeechRecognition' in window) {
+        recognition = new webkitSpeechRecognition();
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        recognition.lang = 'it-IT';
+
+        recognition.onstart = function() {
+            isListening = true;
+            startBtn.style.display = 'none';
+            stopBtn.style.display = 'inline-block';
+            status.textContent = 'Sto ascoltando...';
+            voiceCircle.classList.add('listening');
+        };
+
+        recognition.onresult = function(event) {
+            const transcript = event.results[0][0].transcript;
+            handleUserResponse(transcript);
+        };
+
+        recognition.onend = function() {
+            isListening = false;
+            startBtn.style.display = 'inline-block';
+            stopBtn.style.display = 'none';
+            voiceCircle.classList.remove('listening');
+        };
+
+        recognition.onerror = function(event) {
+            console.error('Errore nel riconoscimento vocale:', event.error);
+            status.textContent = 'Errore nel riconoscimento vocale';
+        };
+    } else {
+        status.textContent = 'Riconoscimento vocale non supportato';
+    }
+}
+
+// Configura gli event listeners
+function setupEventListeners() {
+    startBtn.addEventListener('click', startListening);
+    stopBtn.addEventListener('click', stopListening);
+    nextBtn.addEventListener('click', nextQuestion);
+    sendTextBtn.addEventListener('click', sendTextResponse);
+    textInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            sendTextResponse();
+        }
+    });
+    startQuestionnaireBtn.addEventListener('click', startQuestionnaire);
+}
+
+// Inizia il questionario
+function startQuestionnaire() {
+    isQuestionnaireStarted = true;
+    startQuestionnaireBtn.style.display = 'none';
+    progress.style.display = 'block';
+
+    // Aggiungi l'introduzione
+    addMessageToChat('bot', introduzione);
+    speakText(introduzione);
+
+    // Prepara le domande
+    domandeTotali = [...domandeBase];
+    updateProgress();
+
+    // Dopo l'introduzione, inizia la prima domanda
+    setTimeout(() => {
+        askCurrentQuestion();
+    }, 2000);
+}
+
+// Aggiorna la barra di progresso
+function updateProgress() {
+    const percentage = (currentQuestionIndex / domandeTotali.length) * 100;
+    progressFill.style.width = percentage + '%';
+    progressText.textContent = `${currentQuestionIndex}/${domandeTotali.length}`;
+}
+
+// Fa la domanda corrente
+function askCurrentQuestion() {
+    if (currentQuestionIndex >= domandeTotali.length) {
+        completeQuestionnaire();
+        return;
+    }
+
+    const domanda = domandeTotali[currentQuestionIndex];
+
+    // Verifica se la domanda ha una condizione
+    if (domanda.condizione && !shouldAskConditionalQuestion(domanda.condizione)) {
+        currentQuestionIndex++;
+        askCurrentQuestion();
+        return;
+    }
+
+    addMessageToChat('bot', domanda.testo);
+    speakText(domanda.testo);
+    status.textContent = 'Ascoltando la tua risposta...';
+    nextBtn.style.display = 'inline-block';
+}
+
+// Verifica se fare una domanda condizionale
+function shouldAskConditionalQuestion(condizione) {
+    switch(condizione) {
+        case 'diabete':
+            return risposte.diabete && risposte.diabete.toLowerCase().includes('sì');
+        case 'farmaci':
+            return risposte.farmaci && risposte.farmaci.toLowerCase().includes('sì');
+        case 'interventi':
+            return risposte.interventi && risposte.interventi.toLowerCase().includes('sì');
+        case 'familiarita_tumori':
+            return risposte.familiarita_tumori && risposte.familiarita_tumori.toLowerCase().includes('sì');
+        case 'fumatore':
+            return risposte.fumatore && risposte.fumatore.toLowerCase().includes('sì');
+        case 'alcol':
+            return risposte.alcol && risposte.alcol.toLowerCase().includes('sì');
+        case 'attivita_fisica':
+            return risposte.attivita_fisica && risposte.attivita_fisica.toLowerCase().includes('sì');
+        default:
+            return true;
+    }
+}
+
+// Gestisce la risposta dell'utente
+function handleUserResponse(response) {
+    if (!isQuestionnaireStarted) return;
+
+    const domanda = domandeTotali[currentQuestionIndex];
+    risposte[domanda.key] = response;
+
+    addMessageToChat('user', response);
+
+    // Logica speciale per età e sesso
+    if (domanda.key === 'eta') {
+        const eta = parseInt(response);
+        if (eta > 65) {
+            domandeTotali.push(...domandeOver65);
+        }
+    } else if (domanda.key === 'sesso') {
+        if (response.toLowerCase().includes('femmina') || response.toLowerCase().includes('donna')) {
+            domandeTotali.push(...domandeFemminili);
+        }
+    }
+
+    currentQuestionIndex++;
+    updateProgress();
+
+    setTimeout(() => {
+        askCurrentQuestion();
+    }, 1000);
+}
+
+// Invia risposta testuale
+function sendTextResponse() {
+    const response = textInput.value.trim();
+    if (response) {
+        handleUserResponse(response);
+        textInput.value = '';
+    }
+}
+
+// Avvia ascolto
+function startListening() {
+    if (!isQuestionnaireStarted) return;
+    recognition.start();
+}
+
+// Ferma ascolto
+function stopListening() {
+    recognition.stop();
+}
+
+// Prossima domanda
+function nextQuestion() {
+    if (currentQuestionIndex < domandeTotali.length) {
+        askCurrentQuestion();
+    }
+}
+
+// Completa il questionario
+function completeQuestionnaire() {
+    const completionMessage = 'Questionario completato! Grazie per aver risposto a tutte le domande. I tuoi dati sono stati salvati.';
+    addMessageToChat('bot', completionMessage);
+    speakText(completionMessage);
+
+    status.textContent = 'Questionario completato!';
+    startBtn.style.display = 'none';
+    nextBtn.style.display = 'none';
+
+    console.log('Risposte complete:', risposte);
+}
+
+// Sintetizza il testo
+function speakText(text) {
+    if (synth.speaking) {
+        synth.cancel();
+    }
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'it-IT';
+    utterance.rate = 0.9;
+    utterance.pitch = 1;
+    synth.speak(utterance);
+}
+
+// Aggiunge messaggio alla chat
+function addMessageToChat(sender, message) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `chat-message ${sender}-message`;
+
+    const contentDiv = document.createElement('div');
+    contentDiv.className = 'message-content';
+    contentDiv.textContent = message;
+
+    messageDiv.appendChild(contentDiv);
+    transcriptContent.appendChild(messageDiv);
+
+    // Scroll verso il basso
+    transcriptContent.scrollTop = transcriptContent.scrollHeight;
+}
+
+// Funzioni di utilità
+function toggleTranscript() {
+    const isVisible = transcriptContainer.style.display !== 'none';
+    transcriptContainer.style.display = isVisible ? 'none' : 'block';
+}
+
+function clearTranscript() {
+    transcriptContent.innerHTML = '<div class="chat-message bot-message"><div class="message-content">Trascrizione pulita. Riavvia il questionario se necessario.</div></div>';
+}
+
+function exportResults() {
+    const dataStr = JSON.stringify(risposte, null, 2);
+    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+
+    const exportFileDefaultName = `questionario_prevenzione_${new Date().toISOString().split('T')[0]}.json`;
+
+    const linkElement = document.createElement('a');
+    linkElement.setAttribute('href', dataUri);
+    linkElement.setAttribute('download', exportFileDefaultName);
+    linkElement.click();
+}
+
+// Gestione degli stili delle barre vocali durante l'ascolto
+function animateVoiceBars() {
+    const bars = document.querySelectorAll('.voice-bar');
+    bars.forEach((bar, index) => {
+        const height = Math.random() * 30 + 10;
+        bar.style.height = height + 'px';
+        bar.style.animationDelay = (index * 0.1) + 's';
+    });
+}
+
+// Funzione per gestire l'animazione durante l'ascolto
+function startVoiceAnimation() {
+    const interval = setInterval(() => {
+        if (isListening) {
+            animateVoiceBars();
+        } else {
+            clearInterval(interval);
+        }
+    }, 200);
+}
+
+// Aggiorna la funzione di setup del riconoscimento vocale
+function setupSpeechRecognition() {
+    if ('webkitSpeechRecognition' in window) {
+        recognition = new webkitSpeechRecognition();
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        recognition.lang = 'it-IT';
+
+        recognition.onstart = function() {
+            isListening = true;
+            startBtn.style.display = 'none';
+            stopBtn.style.display = 'inline-block';
+            status.textContent = 'Sto ascoltando...';
+            voiceCircle.classList.add('listening');
+            startVoiceAnimation();
+        };
+
+        recognition.onresult = function(event) {
+            const transcript = event.results[0][0].transcript;
+            handleUserResponse(transcript);
+        };
+
+        recognition.onend = function() {
+            isListening = false;
+            startBtn.style.display = 'inline-block';
+            stopBtn.style.display = 'none';
+            voiceCircle.classList.remove('listening');
+            if (isQuestionnaireStarted) {
+                status.textContent = 'Clicca il microfono per rispondere';
+            }
+        };
+
+        recognition.onerror = function(event) {
+            console.error('Errore nel riconoscimento vocale:', event.error);
+            status.textContent = 'Errore nel riconoscimento vocale. Riprova.';
+            isListening = false;
+            startBtn.style.display = 'inline-block';
+            stopBtn.style.display = 'none';
+            voiceCircle.classList.remove('listening');
+        };
+    } else {
+        status.textContent = 'Riconoscimento vocale non supportato in questo browser';
+        startBtn.textContent = '❌ Vocale non supportato';
+        startBtn.disabled = true;
+    }
+}
+
+// Funzione per gestire meglio la sintesi vocale
+function speakText(text) {
+    if (synth.speaking) {
+        synth.cancel();
+    }
+
+    // Dividi il testo in frasi più brevi se troppo lungo
+    const chunks = text.match(/.{1,200}(?:\s|$)/g) || [text];
+
+    chunks.forEach((chunk, index) => {
+        setTimeout(() => {
+            const utterance = new SpeechSynthesisUtterance(chunk.trim());
+            utterance.lang = 'it-IT';
+            utterance.rate = 0.8;
+            utterance.pitch = 1;
+            utterance.volume = 0.8;
+
+            // Callback per quando finisce di parlare
+            if (index === chunks.length - 1) {
+                utterance.onend = function() {
+                    if (isQuestionnaireStarted && currentQuestionIndex < domandeTotali.length) {
+                        status.textContent = 'Clicca il microfono per rispondere o scrivi la tua risposta';
+                    }
+                };
+            }
+
+            synth.speak(utterance);
+        }, index * 100);
+    });
+}
+
+// Migliora la gestione delle risposte
+function handleUserResponse(response) {
+    if (!isQuestionnaireStarted) return;
+
+    const domanda = domandeTotali[currentQuestionIndex];
+
+    // Pulisci e valida la risposta
+    const cleanResponse = response.trim();
+    if (!cleanResponse) {
+        status.textContent = 'Risposta non valida. Riprova.';
+        return;
+    }
+
+    risposte[domanda.key] = cleanResponse;
+    addMessageToChat('user', cleanResponse);
+
+    // Feedback vocale per conferma
+    const confirmationMessage = 'Risposta registrata.';
+
+    // Logica speciale per età e sesso
+    if (domanda.key === 'eta') {
+        const eta = parseInt(cleanResponse);
+        if (!isNaN(eta) && eta > 65) {
+            // Evita duplicati
+            const existingKeys = domandeTotali.map(d => d.key);
+            const newQuestions = domandeOver65.filter(q => !existingKeys.includes(q.key));
+            domandeTotali.push(...newQuestions);
+            speakText(confirmationMessage + ' Dato che hai più di 65 anni, ti farò alcune domande aggiuntive.');
+        } else {
+            speakText(confirmationMessage);
+        }
+    } else if (domanda.key === 'sesso') {
+        if (cleanResponse.toLowerCase().includes('femmina') ||
+            cleanResponse.toLowerCase().includes('donna') ||
+            cleanResponse.toLowerCase().includes('f')) {
+            // Evita duplicati
+            const existingKeys = domandeTotali.map(d => d.key);
+            const newQuestions = domandeFemminili.filter(q => !existingKeys.includes(q.key));
+            domandeTotali.push(...newQuestions);
+            speakText(confirmationMessage + ' Ti farò anche alcune domande specifiche per le donne.');
+        } else {
+            speakText(confirmationMessage);
+        }
+    } else {
+        speakText(confirmationMessage);
+    }
+
+    currentQuestionIndex++;
+    updateProgress();
+
+    // Breve pausa prima della prossima domanda
+    setTimeout(() => {
+        askCurrentQuestion();
+    }, 1500);
+}
+
+// Migliora la gestione del completamento
+function completeQuestionnaire() {
+    const completionMessage = `Perfetto! Hai completato il questionario di prevenzione sanitaria.
+    Hai risposto a ${Object.keys(risposte).length} domande.
+    I tuoi dati sono stati salvati e puoi esportarli cliccando sul pulsante di download.
+    Grazie per aver dedicato del tempo alla tua salute!`;
+
+    addMessageToChat('bot', completionMessage);
+    speakText(completionMessage);
+
+    status.textContent = 'Questionario completato! Puoi esportare i risultati.';
+    startBtn.style.display = 'none';
+    nextBtn.style.display = 'none';
+    textInput.style.display = 'none';
+    sendTextBtn.style.display = 'none';
+
+    // Mostra un riepilogo
+    const summaryDiv = document.createElement('div');
+    summaryDiv.className = 'chat-message bot-message';
+    summaryDiv.innerHTML = `
+        <div class="message-content">
+            <strong>Riepilogo:</strong><br>
+            • Domande risposte: ${Object.keys(risposte).length}<br>
+            • Età: ${risposte.eta || 'Non specificata'}<br>
+            • Sesso: ${risposte.sesso || 'Non specificato'}<br>
+            <br>
+            <em>Clicca sul pulsante di download per esportare tutti i dati.</em>
+        </div>
+    `;
+    transcriptContent.appendChild(summaryDiv);
+    transcriptContent.scrollTop = transcriptContent.scrollHeight;
+
+    console.log('Risposte complete:', risposte);
+}
+
+// Funzione per riavviare il questionario
+function restartQuestionnaire() {
+    currentQuestionIndex = 0;
+    domandeTotali = [...domandeBase];
+    risposte = {};
+    isQuestionnaireStarted = false;
+
+    clearTranscript();
+    progress.style.display = 'none';
+    startQuestionnaireBtn.style.display = 'inline-block';
+    textInput.style.display = 'block';
+    sendTextBtn.style.display = 'inline-block';
+
+    status.textContent = 'Clicca "Inizia Questionario" per ricominciare';
+}
+
+// Migliora la funzione di export
+function exportResults() {
+    if (Object.keys(risposte).length === 0) {
+        alert('Nessun dato da esportare. Completa prima il questionario.');
+        return;
+    }
+
+    const exportData = {
+        timestamp: new Date().toISOString(),
+        totale_domande: Object.keys(risposte).length,
+        risposte: risposte,
+        metadata: {
+            versione: '1.0',
+            tipo: 'questionario_prevenzione_sanitaria'
+        }
+    };
+
+    const dataStr = JSON.stringify(exportData, null, 2);
+    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+
+    const exportFileDefaultName = `questionario_prevenzione_${new Date().toISOString().split('T')[0]}.json`;
+
+    const linkElement = document.createElement('a');
+    linkElement.setAttribute('href', dataUri);
+    linkElement.setAttribute('download', exportFileDefaultName);
+    linkElement.click();
+
+    status.textContent = 'Dati esportati con successo!';
+}
+
+// Inizializza l'applicazione
+document.addEventListener('DOMContentLoaded', init);
+</script>
+<script src="js/chat.js"></script>
+</body>
+</html>
